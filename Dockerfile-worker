@@ -1,0 +1,13 @@
+FROM golang:1.19-alpine as builder
+
+WORKDIR /app
+COPY . .
+RUN go mod download
+RUN go build -o /out/app ./worker
+
+FROM alpine:latest
+WORKDIR /worker
+COPY --from=builder /out/app /worker/app
+COPY ./config/. /worker/.
+COPY ./config/. /worker/config/.
+ENTRYPOINT ["/worker/app"]

@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package go_temporal;
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "proto/management/management.proto";
+
+option go_package = "canaanadvisors-test/proto/order;order";
+
+message Order {
+  int64 id = 1;
+  string description = 2;
+  int64 restaurant_id = 3;
+  repeated Item items = 4;
+  google.protobuf.Timestamp created_at = 5;
+}
+
+message OrderCreateRequest {
+  int64 restaurant_id = 1;
+  string description = 2;
+  repeated Item items = 3;
+}
+
+message OrderCreateResponse {
+  Order data = 1;
+  string error = 2;
+}
+
+service OrderService {
+  rpc CreateOrder(OrderCreateRequest) returns (OrderCreateResponse) {
+    option (google.api.http) = {
+      post: "/orders"
+      body: "*"
+    };
+  }
+}

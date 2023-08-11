@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package go_temporal;
+
+import "google/api/annotations.proto";
+
+option go_package = "canaanadvisors-test/proto/management;management";
+
+
+message Item {
+  int64 id = 1;
+  string name = 2;
+  string description = 3;
+  float price = 4;
+}
+
+message Category {
+  int64 id = 1;
+  string name = 2;
+  repeated Item items = 3;
+}
+
+message Restaurant {
+  int64 id = 1;
+  string name = 2;
+  repeated Category categories = 3;
+}
+
+message MenuGetRequest {
+  int64 page_index = 1;
+  int64 page_limit = 2;
+}
+
+message MenuGetResponse {
+  repeated Restaurant data = 1;
+  string error = 2;
+}
+
+service ManagementService {
+  rpc GetMenu(MenuGetRequest) returns (MenuGetResponse) {
+    option (google.api.http) = {
+      post: "/management/menu"
+      body: "*"
+    };
+  }
+}

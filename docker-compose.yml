@@ -1,0 +1,143 @@
+version: "3.5"
+services:
+  elasticsearch:
+    container_name: temporal-elasticsearch
+    environment:
+      - cluster.routing.allocation.disk.threshold_enabled=true
+      - cluster.routing.allocation.disk.watermark.low=512mb
+      - cluster.routing.allocation.disk.watermark.high=256mb
+      - cluster.routing.allocation.disk.watermark.flood_stage=128mb
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms256m -Xmx256m
+      - xpack.security.enabled=false
+    image: elasticsearch:${ELASTICSEARCH_VERSION}
+    networks:
+      - canaanadvisors-network
+    expose:
+      - 9200
+    volumes:
+      - /var/lib/elasticsearch/data
+  postgresql:
+    container_name: temporal-postgresql
+    environment:
+      POSTGRES_PASSWORD: temporal
+      POSTGRES_USER: temporal
+    image: postgres:${POSTGRESQL_VERSION}
+    networks:
+      - canaanadvisors-network
+    expose:
+      - 5432
+    volumes:
+      - /var/lib/postgresql/data
+  temporal:
+    container_name: temporal
+    depends_on:
+      - postgresql
+      - elasticsearch
+    environment:
+      - DB=postgresql
+      - DB_PORT=5432
+      - POSTGRES_USER=temporal
+      - POSTGRES_PWD=temporal
+      - POSTGRES_SEEDS=postgresql
+      - DYNAMIC_CONFIG_FILE_PATH=config/dynamicconfig/development-sql.yaml
+      - ENABLE_ES=true
+      - ES_SEEDS=elasticsearch
+      - ES_VERSION=v7
+    image: temporalio/auto-setup:${TEMPORAL_VERSION}
+    networks:
+      - canaanadvisors-network
+    ports:
+      - 7233:7233
+    labels:
+      kompose.volume.type: configMap
+    volumes:
+      - ./libs/temporal/dynamicconfig:/etc/temporal/config/dynamicconfig
+  temporal-admin-tools:
+    container_name: temporal-admin-tools
+    depends_on:
+      - temporal
+    environment:
+      - TEMPORAL_ADDRESS=temporal:7233
+      - TEMPORAL_CLI_ADDRESS=temporal:7233
+    image: temporalio/admin-tools:${TEMPORAL_VERSION}
+    networks:
+      - canaanadvisors-network
+    stdin_open: true
+    tty: true
+  temporal-ui:
+    container_name: temporal-ui
+    depends_on:
+      - temporal
+    environment:
+      - TEMPORAL_ADDRESS=temporal:7233
+      - TEMPORAL_CORS_ORIGINS=http://localhost:3000
+    image: temporalio/ui:${TEMPORAL_UI_VERSION}
+    networks:
+      - canaanadvisors-network
+    ports:
+      - 8080:8080
+
+  db:
+    image: postgres:14.1-alpine
+    restart: always
+    user: postgres
+    ports:
+      - '5432:5432'
+    volumes:
+      - db:/var/lib/postgresql/data
+      - ./script/init-database.sql:/docker-entrypoint-initdb.d/init.sql
+
+  canaanadvisors-worker-1:
+    container_name: canaanadvisors-worker-1
+    depends_on:
+      - temporal
+      - db
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: canaanadvisors
+      DB_PASSWORD: 1qazxsw2
+      DB_NAME: canaanadvisors
+      TEMPO_HOST: temporal:7233
+      TEMPO_NAMESPACE: canaanadvisors-test
+      TEMPO_TASK_QUEUE: canaanadvisors-test-order,canaanadvisors-test-user
+    build:
+      context: .
+      dockerfile: ./Dockerfile-worker
+    networks:
+      - canaanadvisors-network
+
+  canaanadvisors-api:
+    container_name: canaanadvisors-api
+    depends_on:
+      - temporal
+      - db
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: canaanadvisors
+      DB_PASSWORD: 1qazxsw2
+      DB_NAME: canaanadvisors
+      SERVER_NAME: canaanadvisors-test
+      SERVER_GRPC_PORT: 8001
+      SERVER_HTTP_PORT: 9001
+      TEMPO_HOST: temporal:7233
+      TEMPO_NAMESPACE: canaanadvisors-test
+    build:
+      context: .
+      dockerfile: ./Dockerfile-api
+    ports:
+      - '8001:8001'
+      - '9001:9001'
+    networks:
+      - canaanadvisors-network
+
+networks:
+  canaanadvisors-network:
+    driver: bridge
+    name: canaanadvisors-network
+
+volumes:
+  db:
+    driver: local
