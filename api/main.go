@@ -42,6 +42,7 @@ func main() {
 	ap := fx.New(
 		fx.Provide(
 			infra.NewLogger,
+			config.LoadTempoConfig,
 			infra.NewTemporalClient,
 			infra.NewDB,
 			context.TODO,
@@ -51,7 +52,6 @@ func main() {
 			app.NewNotification,
 			app.NewManagement,
 			repositories.NewOrderRepository,
-			config.LoadTempoConfig,
 		),
 		fx.Invoke(
 			listenAndServe,
