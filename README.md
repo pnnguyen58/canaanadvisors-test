@@ -26,14 +26,14 @@ while both the restaurant owners and drivers should receive notifications in rea
 4. golang 1.19
 
 ## How to run local
-- Run temporal server: `docker compose up -f ./libs/docker-compose/docker-compose.yml -d`
 - Run services and workers: `docker compose up -d`
 
 ## How to run ci/cd
 - Todo tasks
 
 ## Technologies and Frameworks
-- Languages: Go
+- Languages: Go, typescript
+- FE Framework: NextJS
 - SDK: temporal.io
 - Clean architecture
 - Network: gRPC, HTTP

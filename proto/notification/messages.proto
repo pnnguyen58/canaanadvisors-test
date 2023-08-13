@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package canaanadvisors;
+
+import "google/api/annotations.proto";
+
+option go_package = "canaanadvisors-test/proto/notification;notification";
+
+message MessageSendRequest {
+  string client_id = 1;
+  string message = 2;
+}
+
+message MessageSendResponse {
+  string status = 1;
+}
+
+message MessageReceiveRequest {
+  string client_id = 1;
+}
+
+message MessageReceiveResponse {
+  string message = 1;
+}
+
+service WebSocketService {
+  rpc SendMessage (MessageSendRequest) returns (MessageSendResponse) {
+    option (google.api.http) = {
+      post: "/ws/send-message"
+      body: "*"
+    };
+  }
+
+  rpc ReceiveMessage (stream MessageReceiveRequest) returns (stream MessageReceiveResponse) {
+    option (google.api.http) = {
+      post: "/ws/receive-message"
+      body: "*"
+    };
+  }
+}

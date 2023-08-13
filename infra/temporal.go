@@ -5,17 +5,16 @@ import (
 	"context"
 	"go.temporal.io/api/workflowservice/v1"
 	"go.temporal.io/sdk/client"
-	"log"
+	"go.uber.org/zap"
 )
 
-func NewTemporalClient(ctx context.Context, tc *config.TempoConfig) (client.Client, error) {
+func NewTemporalClient(ctx context.Context, logger *zap.Logger, tc *config.TempoConfig) (client.Client, error) {
 	cl, err := client.Dial(client.Options{
 		HostPort: tc.HostPort,
 		Namespace: tc.Namespace.Name,
 	})
-	log.Println(tc.HostPort)
 	if err != nil {
-		log.Println(err)
+		logger.Error(err.Error())
 		return nil, err
 	}
 	namespace, err := cl.WorkflowService().DescribeNamespace(ctx, &workflowservice.DescribeNamespaceRequest{

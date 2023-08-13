@@ -2,11 +2,11 @@ package app
 
 import (
 	"canaanadvisors-test/config"
+	"canaanadvisors-test/core/repositories"
 	"canaanadvisors-test/core/workflows"
 	"canaanadvisors-test/proto/order"
 	"context"
-	"fmt"
-	"github.com/google/uuid"
+	"errors"
 	"go.temporal.io/sdk/client"
 	"go.uber.org/zap"
 )
@@ -19,9 +19,10 @@ type orderApp struct {
 	logger *zap.Logger
 	temporalClient client.Client
 	tempoWorkflow *config.Workflow
+	repo repositories.Order
 }
 
-func NewOrderApp(ctx context.Context, logger *zap.Logger, cl client.Client, tcf *config.TempoConfig) Order {
+func NewOrder(logger *zap.Logger, cl client.Client, tcf *config.TempoConfig) Order {
 	return &orderApp{
 		logger: logger,
 		temporalClient: cl,
@@ -29,40 +30,16 @@ func NewOrderApp(ctx context.Context, logger *zap.Logger, cl client.Client, tcf 
 	}
 }
 
-// CreateOrchestration create new example use case
+// CreateOrchestration create new order use case
 func (oa *orderApp) CreateOrchestration(ctx context.Context, req *order.OrderCreateRequest) (*order.OrderCreateResponse, error) {
-	// Get task config
-	taskQueueName := oa.tempoWorkflow.TaskQueueName
-	taskQueueID := uuid.New().String()
-	taskTimeout := oa.tempoWorkflow.TaskTimeout
-
-	// Get workflow config
-	attributes := oa.tempoWorkflow.SearchAttributes
-	executionTimeout := oa.tempoWorkflow.ExecutionTimeout
-	runTimeout := oa.tempoWorkflow.RunTimeout
-
-	workflowOptions := client.StartWorkflowOptions{
-		ID:               taskQueueName + "_" + taskQueueID,
-		TaskQueue:        taskQueueName,
-		SearchAttributes: attributes,
-		WorkflowExecutionTimeout: executionTimeout,
-		WorkflowRunTimeout: runTimeout,
-	}
-
-	we, err := oa.temporalClient.ExecuteWorkflow(ctx, workflowOptions, workflows.CreateOrderWorkflow, req)
+	res, err := ExecuteWorkflow[*order.OrderCreateRequest, *order.OrderCreateResponse](
+		ctx, oa.logger, oa.temporalClient, oa.tempoWorkflow, workflows.CreateOrderWorkflow, req)
 	if err != nil {
-		oa.logger.Error("execute workflow failed")
-		return nil, err
+		oa.logger.Error(err.Error())
+		return nil, errors.New("create order failed")
 	}
-
-	ctxWithTimeout, cancelHandler := context.WithTimeout(context.Background(), taskTimeout)
-	defer cancelHandler()
-
-	res := &order.OrderCreateResponse{}
-	err = we.Get(ctxWithTimeout, &res)
-	if err != nil {
-		return nil, err
+	if res == nil {
+		return new(order.OrderCreateResponse), nil
 	}
-	oa.logger.Info(fmt.Sprintf("execute workflow ID: %v successfully", we.GetID()))
 	return res, nil
 }

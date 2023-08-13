@@ -79,7 +79,7 @@ func RegisterOrderServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/go_temporal.OrderService/CreateOrder", runtime.WithHTTPPathPattern("/orders"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/canaanadvisors.OrderService/CreateOrder", runtime.WithHTTPPathPattern("/orders"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -143,7 +143,7 @@ func RegisterOrderServiceHandlerClient(ctx context.Context, mux *runtime.ServeMu
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/go_temporal.OrderService/CreateOrder", runtime.WithHTTPPathPattern("/orders"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/canaanadvisors.OrderService/CreateOrder", runtime.WithHTTPPathPattern("/orders"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return

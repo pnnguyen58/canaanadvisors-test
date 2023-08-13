@@ -113,7 +113,7 @@ func RegisterUserServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/go_temporal.UserService/Login", runtime.WithHTTPPathPattern("/login"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/canaanadvisors.UserService/Login", runtime.WithHTTPPathPattern("/login"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -138,7 +138,7 @@ func RegisterUserServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/go_temporal.UserService/Logout", runtime.WithHTTPPathPattern("/logout"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/canaanadvisors.UserService/Logout", runtime.WithHTTPPathPattern("/logout"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -202,7 +202,7 @@ func RegisterUserServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/go_temporal.UserService/Login", runtime.WithHTTPPathPattern("/login"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/canaanadvisors.UserService/Login", runtime.WithHTTPPathPattern("/login"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -224,7 +224,7 @@ func RegisterUserServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/go_temporal.UserService/Logout", runtime.WithHTTPPathPattern("/logout"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/canaanadvisors.UserService/Logout", runtime.WithHTTPPathPattern("/logout"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return

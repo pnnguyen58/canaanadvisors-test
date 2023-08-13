@@ -7,5 +7,5 @@ import (
 
 func GetMenuWorkflow(ctx workflow.Context, flowInput *management.MenuGetRequest) (
 	*management.MenuGetResponse, error) {
-	return nil, nil
+	return &management.MenuGetResponse{}, nil
 }

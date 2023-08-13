@@ -78,30 +78,36 @@ services:
     ports:
       - 8080:8080
 
-  db:
+  canaanadvisors-db:
     image: postgres:14.1-alpine
     restart: always
     user: postgres
+    environment:
+      - POSTGRES_PASSWORD=!QAZxsw23edc
     ports:
       - '5432:5432'
     volumes:
-      - db:/var/lib/postgresql/data
+      - canaanadvisors-db:/var/lib/postgresql/data
       - ./script/init-database.sql:/docker-entrypoint-initdb.d/init.sql
 
   canaanadvisors-worker-1:
     container_name: canaanadvisors-worker-1
     depends_on:
       - temporal
-      - db
+      - canaanadvisors-db
     environment:
-      DB_HOST: db
+      DB_HOST: canaanadvisors-db
       DB_PORT: 5432
       DB_USER: canaanadvisors
       DB_PASSWORD: 1qazxsw2
       DB_NAME: canaanadvisors
+      DB_SCHEMA: public
+      DB_CONN_MAX_LIFETIME_SECOND: 300
+      DB_MAX_OPEN_CONN: 100
+      DB_MAX_IDLE_CONN: 100
       TEMPO_HOST: temporal:7233
       TEMPO_NAMESPACE: canaanadvisors-test
-      TEMPO_TASK_QUEUE: canaanadvisors-test-order,canaanadvisors-test-user
+      TEMPO_TASK_QUEUE: canaanadvisors-test-order,canaanadvisors-test-usercanaanadvisors-test-notification,canaanadvisors-test-management
     build:
       context: .
       dockerfile: ./Dockerfile-worker
@@ -112,9 +118,9 @@ services:
     container_name: canaanadvisors-api
     depends_on:
       - temporal
-      - db
+      - canaanadvisors-db
     environment:
-      DB_HOST: db
+      DB_HOST: canaanadvisors-db
       DB_PORT: 5432
       DB_USER: canaanadvisors
       DB_PASSWORD: 1qazxsw2
@@ -133,11 +139,26 @@ services:
     networks:
       - canaanadvisors-network
 
+  canaanadvisors-web:
+    container_name: canaanadvisors-web
+    build:
+      context: ./web
+      dockerfile: ./Dockerfile
+    volumes:
+      - .:/app
+    command: npm run start
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+    networks:
+      - canaanadvisors-network
+
 networks:
   canaanadvisors-network:
     driver: bridge
     name: canaanadvisors-network
 
 volumes:
-  db:
+  canaanadvisors-db:
     driver: local

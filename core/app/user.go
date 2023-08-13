@@ -5,8 +5,7 @@ import (
 	"canaanadvisors-test/core/workflows"
 	"canaanadvisors-test/proto/user"
 	"context"
-	"fmt"
-	"github.com/google/uuid"
+	"errors"
 	"go.temporal.io/sdk/client"
 	"go.uber.org/zap"
 )
@@ -22,7 +21,7 @@ type userApp struct {
 	tempoWorkflow *config.Workflow
 }
 
-func NewUserApp(ctx context.Context, logger *zap.Logger, cl client.Client, tcf *config.TempoConfig) User {
+func NewUser(logger *zap.Logger, cl client.Client, tcf *config.TempoConfig) User {
 	return &userApp{
 		logger: logger,
 		temporalClient: cl,
@@ -31,77 +30,29 @@ func NewUserApp(ctx context.Context, logger *zap.Logger, cl client.Client, tcf *
 }
 
 // LoginOrchestration login use case
-func (aa *userApp) LoginOrchestration(ctx context.Context, req *user.LoginRequest) (*user.LoginResponse, error) {
-	// Get task config
-	taskQueueName := aa.tempoWorkflow.TaskQueueName
-	taskQueueID := uuid.New().String()
-	taskTimeout := aa.tempoWorkflow.TaskTimeout
-
-	// Get workflow config
-	attributes := aa.tempoWorkflow.SearchAttributes
-	executionTimeout := aa.tempoWorkflow.ExecutionTimeout
-	runTimeout := aa.tempoWorkflow.RunTimeout
-
-	workflowOptions := client.StartWorkflowOptions{
-		ID:               taskQueueName + "_" + taskQueueID,
-		TaskQueue:        taskQueueName,
-		SearchAttributes: attributes,
-		WorkflowExecutionTimeout: executionTimeout,
-		WorkflowRunTimeout: runTimeout,
-	}
-
-	we, err := aa.temporalClient.ExecuteWorkflow(ctx, workflowOptions, workflows.LoginWorkflow, req)
+func (ua *userApp) LoginOrchestration(ctx context.Context, req *user.LoginRequest) (*user.LoginResponse, error) {
+	res, err := ExecuteWorkflow[*user.LoginRequest, *user.LoginResponse](
+		ctx, ua.logger, ua.temporalClient, ua.tempoWorkflow, workflows.LoginWorkflow, req)
 	if err != nil {
-		aa.logger.Error("execute workflow failed")
-		return nil, err
+		ua.logger.Error(err.Error())
+		return nil, errors.New("login failed")
 	}
-
-	ctxWithTimeout, cancelHandler := context.WithTimeout(context.Background(), taskTimeout)
-	defer cancelHandler()
-
-	res := &user.LoginResponse{}
-	err = we.Get(ctxWithTimeout, &res)
-	if err != nil {
-		return nil, err
+	if res == nil {
+		return new(user.LoginResponse), nil
 	}
-	aa.logger.Info(fmt.Sprintf("execute workflow ID: %v successfully", we.GetID()))
 	return res, nil
 }
 
 // LogoutOrchestration logout use case
-func (aa *userApp) LogoutOrchestration(ctx context.Context, req *user.LogoutRequest) (*user.LogoutResponse, error) {
-	// Get task config
-	taskQueueName := aa.tempoWorkflow.TaskQueueName
-	taskQueueID := uuid.New().String()
-	taskTimeout := aa.tempoWorkflow.TaskTimeout
-
-	// Get workflow config
-	attributes := aa.tempoWorkflow.SearchAttributes
-	executionTimeout := aa.tempoWorkflow.ExecutionTimeout
-	runTimeout := aa.tempoWorkflow.RunTimeout
-
-	workflowOptions := client.StartWorkflowOptions{
-		ID:               taskQueueName + "_" + taskQueueID,
-		TaskQueue:        taskQueueName,
-		SearchAttributes: attributes,
-		WorkflowExecutionTimeout: executionTimeout,
-		WorkflowRunTimeout: runTimeout,
-	}
-
-	we, err := aa.temporalClient.ExecuteWorkflow(ctx, workflowOptions, workflows.LogoutWorkflow, req)
+func (ua *userApp) LogoutOrchestration(ctx context.Context, req *user.LogoutRequest) (*user.LogoutResponse, error) {
+	res, err := ExecuteWorkflow[*user.LogoutRequest, *user.LogoutResponse](
+		ctx, ua.logger, ua.temporalClient, ua.tempoWorkflow, workflows.LogoutWorkflow, req)
 	if err != nil {
-		aa.logger.Error("execute workflow failed")
-		return nil, err
+		ua.logger.Error(err.Error())
+		return nil, errors.New("logout failed")
 	}
-
-	ctxWithTimeout, cancelHandler := context.WithTimeout(context.Background(), taskTimeout)
-	defer cancelHandler()
-
-	res := &user.LogoutResponse{}
-	err = we.Get(ctxWithTimeout, &res)
-	if err != nil {
-		return nil, err
+	if res == nil {
+		return new(user.LogoutResponse), nil
 	}
-	aa.logger.Info(fmt.Sprintf("execute workflow ID: %v successfully", we.GetID()))
 	return res, nil
 }

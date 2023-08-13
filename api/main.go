@@ -1,11 +1,9 @@
 package main
 
 import (
-	"canaanadvisors-test/config"
-	"canaanadvisors-test/core/app"
-	"canaanadvisors-test/infra"
-	"canaanadvisors-test/proto/order"
-	"canaanadvisors-test/proto/user"
+	"canaanadvisors-test/core/repositories"
+	"canaanadvisors-test/proto/management"
+	"canaanadvisors-test/proto/notification"
 	"context"
 	"fmt"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
@@ -17,6 +15,13 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+
+
+	"canaanadvisors-test/config"
+	"canaanadvisors-test/core/app"
+	"canaanadvisors-test/infra"
+	"canaanadvisors-test/proto/order"
+	"canaanadvisors-test/proto/user"
 )
 
 func main() {
@@ -38,10 +43,14 @@ func main() {
 		fx.Provide(
 			infra.NewLogger,
 			infra.NewTemporalClient,
+			infra.NewDB,
 			context.TODO,
 			// TODO add all providers
-			app.NewOrderApp,
-			app.NewUserApp,
+			app.NewOrder,
+			app.NewUser,
+			app.NewNotification,
+			app.NewManagement,
+			repositories.NewOrderRepository,
 			config.LoadTempoConfig,
 		),
 		fx.Invoke(
@@ -53,7 +62,8 @@ func main() {
 	}
 }
 
-func listenAndServe(ctx context.Context, logger *zap.Logger, orderApp app.Order, authApp app.User) {
+func listenAndServe(ctx context.Context, logger *zap.Logger,
+	orderApp app.Order, authApp app.User, mgtApp app.Management, notifyApp app.Notification) {
 	// Create a listener on TCP port
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%v", config.C.Server.GRPCPort))
 	if err != nil {
@@ -65,6 +75,9 @@ func listenAndServe(ctx context.Context, logger *zap.Logger, orderApp app.Order,
 	// Register our service with the gRPC server
 	order.RegisterOrderServiceServer(grpcServer, &OrderController{logger: logger, app: orderApp})
 	user.RegisterUserServiceServer(grpcServer, &UserController{logger: logger, app: authApp})
+	notification.RegisterNotificationServiceServer(grpcServer, &NotificationController{logger: logger, app: notifyApp})
+	notification.RegisterWebSocketServiceServer(grpcServer, &WebSocketController{logger: logger})
+	management.RegisterManagementServiceServer(grpcServer, &ManagementController{logger: logger, app: mgtApp})
 	// TODO: register more service here
 
 	// Serve gRPC server
@@ -96,6 +109,18 @@ func listenAndServe(ctx context.Context, logger *zap.Logger, orderApp app.Order,
 		logger.Fatal(err.Error())
 	}
 	err = user.RegisterUserServiceHandler(ctx, gwMux, conn)
+	if err != nil {
+		logger.Fatal(err.Error())
+	}
+	err = notification.RegisterNotificationServiceHandler(ctx, gwMux, conn)
+	if err != nil {
+		logger.Fatal(err.Error())
+	}
+	err = management.RegisterManagementServiceHandler(ctx, gwMux, conn)
+	if err != nil {
+		logger.Fatal(err.Error())
+	}
+	err = notification.RegisterWebSocketServiceHandler(ctx, gwMux, conn)
 	if err != nil {
 		logger.Fatal(err.Error())
 	}

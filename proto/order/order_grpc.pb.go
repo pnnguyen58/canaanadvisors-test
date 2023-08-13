@@ -19,7 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	OrderService_CreateOrder_FullMethodName = "/go_temporal.OrderService/CreateOrder"
+	OrderService_CreateOrder_FullMethodName = "/canaanadvisors.OrderService/CreateOrder"
 )
 
 // OrderServiceClient is the client API for OrderService service.
@@ -96,7 +96,7 @@ func _OrderService_CreateOrder_Handler(srv interface{}, ctx context.Context, dec
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var OrderService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "go_temporal.OrderService",
+	ServiceName: "canaanadvisors.OrderService",
 	HandlerType: (*OrderServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

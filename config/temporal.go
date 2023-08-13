@@ -53,5 +53,17 @@ func mockTempoConfig() (tc *TempoConfig) {
 		RunTimeout: 300*time.Second,
 		TaskTimeout: 300*time.Second,
 	}
+	tc.Workflows["canaanadvisors-test-notification"] = &Workflow{
+		TaskQueueName: "canaanadvisors-test-notification",
+		ExecutionTimeout: 300*time.Second,
+		RunTimeout: 300*time.Second,
+		TaskTimeout: 300*time.Second,
+	}
+	tc.Workflows["canaanadvisors-test-management"] = &Workflow{
+		TaskQueueName: "canaanadvisors-test-management",
+		ExecutionTimeout: 300*time.Second,
+		RunTimeout: 300*time.Second,
+		TaskTimeout: 300*time.Second,
+	}
 	return
 }

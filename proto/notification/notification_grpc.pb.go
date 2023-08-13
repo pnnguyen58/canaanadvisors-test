@@ -19,7 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	NotificationService_Send_FullMethodName = "/go_temporal.NotificationService/Send"
+	NotificationService_Send_FullMethodName = "/canaanadvisors.NotificationService/Send"
 )
 
 // NotificationServiceClient is the client API for NotificationService service.
@@ -96,7 +96,7 @@ func _NotificationService_Send_Handler(srv interface{}, ctx context.Context, dec
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var NotificationService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "go_temporal.NotificationService",
+	ServiceName: "canaanadvisors.NotificationService",
 	HandlerType: (*NotificationServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

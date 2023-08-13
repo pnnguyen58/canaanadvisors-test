@@ -19,8 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	UserService_Login_FullMethodName  = "/go_temporal.UserService/Login"
-	UserService_Logout_FullMethodName = "/go_temporal.UserService/Logout"
+	UserService_Login_FullMethodName  = "/canaanadvisors.UserService/Login"
+	UserService_Logout_FullMethodName = "/canaanadvisors.UserService/Logout"
 )
 
 // UserServiceClient is the client API for UserService service.
@@ -129,7 +129,7 @@ func _UserService_Logout_Handler(srv interface{}, ctx context.Context, dec func(
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var UserService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "go_temporal.UserService",
+	ServiceName: "canaanadvisors.UserService",
 	HandlerType: (*UserServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

@@ -5,7 +5,6 @@ import (
 	"context"
 )
 
-
 func CreateOrder(ctx context.Context, input *order.OrderCreateRequest) (*order.OrderCreateResponse, error) {
 	return nil, nil
 }

@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package go_temporal;
+package canaanadvisors;
 
 import "google/api/annotations.proto";
 

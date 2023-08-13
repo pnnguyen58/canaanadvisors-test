@@ -19,7 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	ManagementService_GetMenu_FullMethodName = "/go_temporal.ManagementService/GetMenu"
+	ManagementService_GetMenu_FullMethodName = "/canaanadvisors.ManagementService/GetMenu"
 )
 
 // ManagementServiceClient is the client API for ManagementService service.
@@ -96,7 +96,7 @@ func _ManagementService_GetMenu_Handler(srv interface{}, ctx context.Context, de
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var ManagementService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "go_temporal.ManagementService",
+	ServiceName: "canaanadvisors.ManagementService",
 	HandlerType: (*ManagementServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

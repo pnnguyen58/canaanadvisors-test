@@ -26,7 +26,8 @@ func main() {
 	//}()
 	tempoHost := getEnv("TEMPO_HOST", "localhost:7233")
 	tempoNS := getEnv("TEMPO_NAMESPACE", "canaanadvisors-test")
-	tempoTasks := getEnv("TEMPO_TASK_QUEUE", "canaanadvisors-test-order,canaanadvisors-test-user")
+	tempoTasks := getEnv("TEMPO_TASK_QUEUE", "canaanadvisors-test-order,canaanadvisors-test-user" +
+		",canaanadvisors-test-notification,canaanadvisors-test-management")
 	cl, err := client.Dial(client.Options{
 		HostPort: tempoHost,
 		Namespace: tempoNS,
@@ -64,6 +65,29 @@ func register(cl client.Client, taskQueues []string) {
 			w.RegisterActivity(activities.LoginCompensation)
 			w.RegisterActivity(activities.Logout)
 			w.RegisterActivity(activities.LogoutCompensation)
+			// TODO: add more workflows and activities
+			go func() {
+				err := w.Run(worker.InterruptCh())
+				if err != nil {
+					log.Fatalln("Unable to start worker", err)
+				}
+			}()
+		case "canaanadvisors-test-notification":
+			w := worker.New(cl, taskQueueName, worker.Options{})
+			w.RegisterWorkflow(workflows.SendNotificationWorkflow)
+			w.RegisterActivity(activities.SendNotification)
+			w.RegisterActivity(activities.SendNotificationCompensation)
+			// TODO: add more workflows and activities
+			go func() {
+				err := w.Run(worker.InterruptCh())
+				if err != nil {
+					log.Fatalln("Unable to start worker", err)
+				}
+			}()
+		case "canaanadvisors-test-management":
+			w := worker.New(cl, taskQueueName, worker.Options{})
+			w.RegisterWorkflow(workflows.GetMenuWorkflow)
+			w.RegisterActivity(activities.GetMenu)
 			// TODO: add more workflows and activities
 			go func() {
 				err := w.Run(worker.InterruptCh())

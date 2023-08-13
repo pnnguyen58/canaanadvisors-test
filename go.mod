@@ -4,6 +4,8 @@ go 1.19
 
 require (
 	github.com/google/uuid v1.3.0
+	github.com/google/wire v0.5.0
+	github.com/gorilla/websocket v1.5.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.16.2
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/viper v1.16.0
@@ -17,6 +19,8 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20230803162519-f966b187b2e5
 	google.golang.org/grpc v1.57.0
 	google.golang.org/protobuf v1.31.0
+	gorm.io/driver/postgres v1.5.2
+	gorm.io/gorm v1.25.3
 )
 
 require (
@@ -30,6 +34,11 @@ require (
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
+	github.com/jackc/pgpassfile v1.0.0 // indirect
+	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
+	github.com/jackc/pgx/v5 v5.3.1 // indirect
+	github.com/jinzhu/inflection v1.0.0 // indirect
+	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/pborman/uuid v1.2.1 // indirect
