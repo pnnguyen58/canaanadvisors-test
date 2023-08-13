@@ -79,6 +79,7 @@ services:
       - 8080:8080
 
   canaanadvisors-db:
+    container_name: canaanadvisors-db
     image: postgres:14.1-alpine
     restart: always
     user: postgres
@@ -89,6 +90,16 @@ services:
     volumes:
       - canaanadvisors-db:/var/lib/postgresql/data
       - ./script/init-database.sql:/docker-entrypoint-initdb.d/init.sql
+
+  canaanadvisors-redis:
+    container_name: canaanadvisors-redis
+    image: redis:7-alpine
+    restart: always
+    ports:
+      - '6379:6379'
+    command: redis-server --save 20 1 --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+    volumes:
+      - cache:/data
 
   canaanadvisors-worker-1:
     container_name: canaanadvisors-worker-1
@@ -161,4 +172,6 @@ networks:
 
 volumes:
   canaanadvisors-db:
+    driver: local
+  cache:
     driver: local

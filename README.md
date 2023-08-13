@@ -28,8 +28,16 @@ while both the restaurant owners and drivers should receive notifications in rea
 ## How to run local
 - Run services and workers: `docker compose up -d`
 
-## How to run ci/cd
-- Todo tasks
+## TODO tasks
+- Integrate APIs and FE
+- Implement and integrate order, management database (Postgres)
+- Implement authentication flow (Firebase)
+- Implement Kafka and ksql for notification
+- Implement Redis to cache client id
+- Implement API gateway: forwarder and authenticator
+- Implement role based permission
+- Wireframe for mobile
+- Implement notification
 
 ## Technologies and Frameworks
 - Languages: Go, typescript
@@ -37,7 +45,73 @@ while both the restaurant owners and drivers should receive notifications in rea
 - SDK: temporal.io
 - Clean architecture
 - Network: gRPC, HTTP
-- Docker
+- Docker, docker compose
+- Database: postgres, redis
+- Cloud server: AWS, Firebase
+
+## Architecture
+### System Design
+![](./docs/services.png)
+![](./docs/sequence.png)
+### Wireframe
+![img.png](docs/login.png)
+![img.png](docs/order.png)
+![img.png](docs/create-order-1.png)
+![img.png](docs/create-order-2.png)
+![img.png](docs/create-order-3.png)
+### Services
+  - API gateway:
+    - Structure: DDD and Clean architecture
+    - Features:
+      - Forwarder
+      - Aggregator
+      - Authenticator
+    - Database: redis
+    - API design: RPC and REST, google.api wrapper
+    - Language: go 1.19
+  
+  - Order service:
+    - Structure: DDD and Clean architecture
+    - Features:
+      - Create orders
+      - Manage order lists
+    - Database: postgres
+    - API design: RPC and REST, google.api wrapper
+    - Language: go 1.19
+    - Message broker: kafka
+    
+  - Notification service:
+    - Structure: DDD and Clean architecture
+    - Features:
+      - Receive message
+      - Send message
+      - Websocket
+    - Message broker: kafka
+    - API design: RPC and REST, google.api wrapper
+    - Language: go 1.19
+
+  - User service:
+    - Structure: DDD and Clean architecture
+    - Features:
+      - Authentication
+      - Manage users and roles
+    - Database: Firestore
+    - API design: RPC and REST, google.api wrapper
+    - Language: go 1.19
+
+  - Management service:
+    - Structure: DDD and Clean architecture
+    - Features:
+      - Manage restaurants
+      - Manage menu, categories, items
+    - Database: postgres
+    - API design: RPC and REST, google.api wrapper
+    - Language: go 1.19
+
+  - Message broker:
+    - Kafka: pub-sub service
+    - ksqlDB: stream kafka event for monitoring and debugging
+
 
 ## Directory structure
     📁 canaanadvisors-test
@@ -56,6 +130,7 @@ while both the restaurant owners and drivers should receive notifications in rea
     |__ 📁 libs
     |__ 📁 proto
     |__ 📁 worker // temporal workers
+    |__ 📁 web // FE
     |__ docker-compose.yml
     |__ go.mod
     |__ go.sum
